@@ -85,6 +85,21 @@ public class TaskController {
         return mav;
     }
 
+    @RequestMapping("/deleteTask")
+    public ModelAndView deleteTask() {
+ 
+        ModelAndView mav=new ModelAndView("newTask");
+//        mav.addObject("message", message);
+        return mav;
+    }
+    
+    @RequestMapping("/stopTask")
+    public ModelAndView stopTask() {
+ 
+        ModelAndView mav=new ModelAndView("newTask");
+//        mav.addObject("message", message);
+        return mav;
+    }
     
     
     
