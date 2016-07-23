@@ -35,7 +35,7 @@
         @import url(/${webRootPath}/resources/topicEvolution/topicEvolutionDiagram.css);
 
         #chart {
-            height: 500px;
+            height: ${basicHeight}px;
         }
 
         .node rect {
@@ -66,11 +66,11 @@
 
 <body>
 
-<div id="wrapper">
+<div id="wrapper" style="width: ${basicWidth+300}px;">
 
-    <div class="row">
-        <div class="panel panel-default">
-            <div class="panel-heading">
+    <div class="row" style="width:100%">
+        <div class="panel panel-default" style="width:100%">
+            <div class="panel-heading" style="width:100%">
                 Topic Tracking: ${task.name}   Mining Interval: ${task.miningInterval}   Alpha: ${task.alpha}   Beta: ${task.beta}
             </div>
             <!-- /.panel-heading -->
@@ -107,11 +107,15 @@
 <script src="/${webRootPath}/resources/d3/d3.v2.js" charset="utf-8"></script>
 <!--<script src="/${webRootPath}/resources/sankey-diagram/sankey.js"></script>-->
 <script src="/${webRootPath}/resources/topicEvolution/topicEvolutionDiagram.js"></script>
+
+<script src="/${webRootPath}/resources/topicEvolution/jquery-tagcloud/jquery.tagcloud.js"></script>
 <script>
 
+    var tagCloudArr={};
+
     var margin = {top: 1, right: 1, bottom: 6, left: 1},
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+            width = ${basicWidth} - margin.left - margin.right,
+            height = ${basicHeight} - margin.top - margin.bottom;
 
     var formatNumber = d3.format(",.0f"),
             format = function(d) { return formatNumber(d) + " TWh"; },
@@ -148,7 +152,8 @@
                 .call(d3.behavior.drag()
                         .origin(function(d) { return d; })
                         .on("dragstart", function() { this.parentNode.appendChild(this); })
-                        .on("drag", dragmove));
+                        .on("drag", dragmove))
+                .on("dblclick", nodeOnClick);
 
         node.append("rect")
                 .attr("height", function(d) { return d.barHeight; })
@@ -160,14 +165,13 @@
                     return d.name;
                 });
 
-        node.append("text")
+         node.append("text")
                 .attr("x", -6)
                 .attr("y", function(d) { return d.barHeight / 2; })
                 .attr("dy", ".35em")
                 .attr("text-anchor", "end")
                 .attr("transform", null)
                 .text(function(d) {
-
                     return d.name;
                 })
                 .filter(function(d) { return d.x < width / 2; })
@@ -221,11 +225,77 @@
                          .attr("fill", "red");
 
         function dragmove(d) {
-            d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height - d.barHeight/2 - margin.bottom, d3.event.y))) + ")");
+            d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height, d3.event.y))) + ")");
             topicEvolutionDiagram.relayout();
             link.attr("d", path);
+
+            var divname="topicTagCloud_" + d.topicId;
+            if(null!=tagCloudArr[divname]){
+                var tagDiv=tagCloudArr[divname];
+                tagDiv.style('display','none');
+            }
         }
     });
+
+    function nodeOnClick(node) {
+
+        var divname="topicTagCloud_" + node.topicId;
+
+        if(null!=tagCloudArr[divname]){
+            var tagDiv=tagCloudArr[divname];
+            if(tagDiv.style('display')=='none'){
+                var dTop=$("#chart")[0].offsetTop;
+                var dLeft=$("#chart")[0].offsetLeft;
+                tagDiv
+                        .style('display','block')
+                        .style("left", (dLeft + node.x + topicEvolutionDiagram.nodeWidth() + 10 + "px"))
+                        .style("top", (dTop + node.y + 5 +"px"));
+            }else{
+                tagDiv
+                        .style('display','none');
+            }
+
+        }else{
+            var innerHtml='<a rel="7">peace</a>'+
+                    '<a rel="3">ytr</a>'+
+                    '<a rel="10">werwe</a>'+
+                    '<a rel="3">wr</a>'+
+                    '<a rel="10">kjhgj</a>'+
+                    '<a rel="3">rtfe</a><br/>'+
+                    '<a rel="10">sffzz</a>'+
+                    '<a rel="3">unity</a>'+
+                    '<a rel="10">love</a>'+
+                    '<a rel="5">having fun</a>';
+
+            var dTop=$("#chart")[0].offsetTop;
+            var dLeft=$("#chart")[0].offsetLeft;
+
+            var g = d3.select(this); // The node
+            var div = d3.select("body").append("div")
+                    .attr('id', divname)
+                    .attr('pointer-events', 'none')
+                    .attr("class", "tooltip")
+                    .style("opacity", 0.5)
+                    .style('display','block')
+                    .style('background-color','white')
+                    .style('border','1px solid')
+                    .style('border-radius','10px')
+                    .html(innerHtml)
+                    .style("left", (dLeft + node.x + topicEvolutionDiagram.nodeWidth() + 10 + "px"))
+                    .style("top", (dTop + node.y + 5 +"px"));
+
+            $('#'+divname+' a').tagcloud();
+
+            tagCloudArr[divname]=div;
+        }
+    }
+
+
+    //Tag Cloud
+    $.fn.tagcloud.defaults = {
+        size: {start: 10, end: 20, unit: 'pt'},
+        color: {start: '#EEEEEE', end: '#0000DD'}
+    };
 
 </script>
 <script>

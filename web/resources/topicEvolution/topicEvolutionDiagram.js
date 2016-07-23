@@ -220,6 +220,7 @@ d3.topicEvolutionDiagram = function() {
     }
 
     topicEvolutionDiagram.relayout = function() {
+        // computeNodeDepths();
         computeLinkDepths();
         return topicEvolutionDiagram;
     };

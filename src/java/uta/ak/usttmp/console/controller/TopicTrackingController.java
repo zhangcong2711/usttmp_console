@@ -34,6 +34,8 @@ public class TopicTrackingController {
  
         ModelAndView mav=new ModelAndView("trackingTopic");
         mav.addObject("task", task);
+        mav.addObject("basicWidth", task.getQrtzJobExecCount()*400);
+        mav.addObject("basicHeight", task.getTopicNum()*50);
         return mav;
     }
 
