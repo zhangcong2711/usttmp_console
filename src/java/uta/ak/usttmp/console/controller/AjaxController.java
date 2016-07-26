@@ -5,7 +5,15 @@
  */
 package uta.ak.usttmp.console.controller;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,10 +22,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import uta.ak.usttmp.common.dao.UsttmpDaoSupport;
+import uta.ak.usttmp.common.dao.mapper.EvolutionRelaRowMapper;
 import uta.ak.usttmp.common.dao.mapper.MiningTaskRowMapper;
 import uta.ak.usttmp.common.dao.mapper.TopicRowMapper;
+import uta.ak.usttmp.common.model.EvolutionRelationship;
 import uta.ak.usttmp.common.model.MiningTask;
 import uta.ak.usttmp.common.model.Topic;
+import uta.ak.usttmp.console.model.vo.TopicVo;
 
 /**
  *
@@ -50,10 +61,50 @@ public class AjaxController{
         String sql="select * from c_topic where miningtask_id=?";
         List<Topic> topicList=usttmpJdbcTemlate.query(sql, new TopicRowMapper(), taskId);
         
+        String relasql="select * from c_topicevolutionrela where miningtask_id=?";
+        List<EvolutionRelationship> relaList=usttmpJdbcTemlate.query(relasql,
+                                                                     new EvolutionRelaRowMapper(usttmpJdbcTemlate),
+                                                                     taskId);
+        
+        //group topic
+        Map<Integer, List<Topic>> hashMap = new HashMap<Integer, List<Topic>>();
+        for(Iterator<Topic> i=topicList.iterator();
+            i.hasNext();){
+            
+            Topic tp=i.next();
+            if (!hashMap.containsKey(tp.getSeq())) {
+                List<Topic> list = new ArrayList<Topic>();
+                list.add(tp);
+
+                hashMap.put(tp.getSeq(), list);
+            } else {
+                hashMap.get(tp.getSeq()).add(tp);
+            }
+        }
+        
+        List<TopicVo> tpvoList=new ArrayList<>();
+        
+        Set es = hashMap.entrySet();
+        for(Iterator i=es.iterator();i.hasNext();){
+            Entry key=(Entry) i.next();
+            List<Topic> subtl = (List<Topic>) key.getValue();
+            
+            double totalHeat=0;
+            for (Topic tp : subtl) {
+                totalHeat+=tp.getHeat();
+            }
+            
+            for (Topic tp : subtl) {
+                TopicVo tvo=new TopicVo(tp);
+                tvo.setNormalizedHeat((int)((tvo.getHeat()/totalHeat)*100));
+                tpvoList.add(tvo);
+            }
+        }
         
         ModelAndView mav=new ModelAndView("/ajax/getTopicDataByTaskId.ajax");
-//        mav.addObject("count", count);
-//        mav.addObject("mtList", mtList);
+        mav.addObject("topicCount", tpvoList.size());
+        mav.addObject("topicList", tpvoList);
+        mav.addObject("relaList", relaList);
         return mav;
     }
 

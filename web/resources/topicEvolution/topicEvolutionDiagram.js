@@ -127,7 +127,7 @@ d3.topicEvolutionDiagram = function() {
             }
         });
 
-        scaleNodeBreadths((width - nodeWidth) / (x - 1));
+        scaleNodeBreadths((chartWidth - nodeWidth * x - 300) / (x - 1));
     }
 
     function scaleNodeBreadths(kx) {
@@ -165,7 +165,8 @@ d3.topicEvolutionDiagram = function() {
 
         function initializeNodeDepth() {
 
-            var tHeight=height-topicNum * nodePadding;
+
+            var tHeight=(topicEvolutionDiagram.size())[1]-topicNum * nodePadding;
 
             nodesBySeq.forEach(function(tnodes) {
 
@@ -177,7 +178,7 @@ d3.topicEvolutionDiagram = function() {
                         var preNode=tnodes[i-1];
                         tNode.y=nodePadding + preNode.y + preNode.barHeight;
                     }else{
-                        tNode.y=nodePadding;
+                        tNode.y=nodePadding + 50;
                     }
                     tNode.barHeight = tNode.normalizedHeat * tHeight / 100;
                     // tNode.barHeight = 50;

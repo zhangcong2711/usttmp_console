@@ -35,7 +35,7 @@
         @import url(/${webRootPath}/resources/topicEvolution/topicEvolutionDiagram.css);
 
         #chart {
-            height: ${basicHeight}px;
+            height: ${(basicHeight+50)?c}px;
         }
 
         .node rect {
@@ -66,15 +66,15 @@
 
 <body>
 
-<div id="wrapper" style="width: ${basicWidth+300}px;">
+<div id="wrapper" style="width: ${(basicWidth)?c}px; height: ${(basicHeight+50)?c}px">
 
     <div class="row" style="width:100%">
-        <div class="panel panel-default" style="width:100%">
-            <div class="panel-heading" style="width:100%">
+        <div class="panel panel-default" style="width:100%;height: 100%">
+            <div class="panel-heading" style="width:100%;height: 100%">
                 Topic Tracking: ${task.name}   Mining Interval: ${task.miningInterval}   Alpha: ${task.alpha}   Beta: ${task.beta}
             </div>
             <!-- /.panel-heading -->
-            <div class="panel-body" style="width:100%">
+            <div class="panel-body" style="width:100%;height: 100%">
                 <!--
                 <div class="alert alert-info" style="font-size:40px">
                     Loading......
@@ -114,24 +114,24 @@
     var tagCloudArr={};
 
     var margin = {top: 1, right: 1, bottom: 6, left: 1},
-            width = ${basicWidth} - margin.left - margin.right,
-            height = ${basicHeight} - margin.top - margin.bottom;
+            chartWidth = ${(basicWidth)?c} - margin.left - margin.right,
+            chartHeight = ${basicHeight?c} - margin.top - margin.bottom;
 
     var formatNumber = d3.format(",.0f"),
             format = function(d) { return formatNumber(d) + " TWh"; },
             color = d3.scale.category20();
 
     var svg = d3.select("#chart").append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
+            .attr("width", chartWidth + margin.left + margin.right)
+            .attr("height", chartHeight + margin.top + margin.bottom)
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
     var topicEvolutionDiagram = d3.topicEvolutionDiagram()
-            .topicNum(5)
-            .nodeWidth(15)
-            .nodePadding(10)
-            .size([width, height]);
+            .topicNum(${topicNum?c})
+            .nodeWidth(20)
+            .nodePadding(5)
+            .size([chartWidth, chartHeight]);
 
     var path = topicEvolutionDiagram.link();
 
@@ -174,7 +174,7 @@
                 .text(function(d) {
                     return d.name;
                 })
-                .filter(function(d) { return d.x < width / 2; })
+                .filter(function(d) { return d.x < chartWidth / 2; })
                 .attr("x", 6 + topicEvolutionDiagram.nodeWidth())
                 .attr("text-anchor", "start");
 
@@ -185,6 +185,7 @@
                 .attr("d", path)
                 .style("stroke-width", function(d) { return 8; });
 
+        /*
         var text = svg.selectAll(".linktext")
                                 .data(topicData.links)
                                 .enter()
@@ -223,9 +224,10 @@
                          .attr("font-family", "sans-serif")
                          .attr("font-size", "14px")
                          .attr("fill", "red");
+                         */
 
         function dragmove(d) {
-            d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(height, d3.event.y))) + ")");
+            d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(chartHeight, d3.event.y))) + ")");
             topicEvolutionDiagram.relayout();
             link.attr("d", path);
 
@@ -256,6 +258,25 @@
             }
 
         }else{
+
+            var wpstr = node.normalizedWordProbabilitys;
+            var wparr = wpstr.split(",");
+            shuffleArray(wparr);
+
+            var innerHtml="";
+
+            wparr.forEach(function (element, index, array) {
+                var word = ((element.trim()).split(":"))[0];
+                var probabiblity = ((element.trim()).split(":"))[1];
+
+                innerHtml += '<a rel="'+probabiblity+'">'+word+'&nbsp;&nbsp;</a>';
+
+                if(0!=index && array.length!=index && 0==((index+1)%5)){
+                    innerHtml += '<br/>';
+                }
+            });
+
+            /*
             var innerHtml='<a rel="7">peace</a>'+
                     '<a rel="3">ytr</a>'+
                     '<a rel="10">werwe</a>'+
@@ -265,7 +286,7 @@
                     '<a rel="10">sffzz</a>'+
                     '<a rel="3">unity</a>'+
                     '<a rel="10">love</a>'+
-                    '<a rel="5">having fun</a>';
+                    '<a rel="5">having fun</a>';*/
 
             var dTop=$("#chart")[0].offsetTop;
             var dLeft=$("#chart")[0].offsetLeft;
@@ -275,7 +296,7 @@
                     .attr('id', divname)
                     .attr('pointer-events', 'none')
                     .attr("class", "tooltip")
-                    .style("opacity", 0.5)
+                    .style("opacity", 0.9)
                     .style('display','block')
                     .style('background-color','white')
                     .style('border','1px solid')
@@ -290,22 +311,29 @@
         }
     }
 
+    function shuffleArray(a) { // Fisher-Yates shuffle, no side effects
+        var i = a.length, t, j;
+        a = a.slice();
+        while (--i) t = a[i], a[i] = a[j = ~~(Math.random() * (i+1))], a[j] = t;
+        return a;
+    }
+
 
     //Tag Cloud
     $.fn.tagcloud.defaults = {
         size: {start: 10, end: 20, unit: 'pt'},
-        color: {start: '#EEEEEE', end: '#0000DD'}
+        color: {start: '#87CEFA', end: '#191970'}
     };
 
 </script>
-<script>
+<!--<script>-->
 
-    GoogleAnalyticsObject = "ga", ga = function() { ga.q.push(arguments); }, ga.q = [], ga.l = +new Date;
-    ga("create", "UA-48272912-3", "ocks.org");
-    ga("send", "pageview");
+    <!--GoogleAnalyticsObject = "ga", ga = function() { ga.q.push(arguments); }, ga.q = [], ga.l = +new Date;-->
+    <!--ga("create", "UA-48272912-3", "ocks.org");-->
+    <!--ga("send", "pageview");-->
 
-</script>
-<script async src="//www.google-analytics.com/analytics.js"></script>
+<!--</script>-->
+<!--<script async src="//www.google-analytics.com/analytics.js"></script>-->
 
 <!--
 <script>
