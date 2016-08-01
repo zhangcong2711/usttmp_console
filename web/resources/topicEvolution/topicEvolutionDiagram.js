@@ -126,13 +126,20 @@ d3.topicEvolutionDiagram = function() {
                 x=node.seq;
             }
         });
-
-        scaleNodeBreadths((chartWidth - nodeWidth * x - 300) / (x - 1));
+        
+        scaleNodeBreadths((0!=(x-1)) ? 
+                          ((chartWidth - nodeWidth * x - 300) / (x - 1)) :
+                          0 );
     }
 
     function scaleNodeBreadths(kx) {
         nodes.forEach(function(node) {
-            node.x *= kx;
+            if(0!=kx){
+                node.x *= kx;
+            }else{
+                node.x = 1;
+            }
+            
         });
     }
 
