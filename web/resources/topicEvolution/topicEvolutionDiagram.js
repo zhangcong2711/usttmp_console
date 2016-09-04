@@ -9,6 +9,7 @@ d3.topicEvolutionDiagram = function() {
         size = [1, 1],
         nodes = [],
         links = [];
+        labels=[];
 
     topicEvolutionDiagram.topicNum = function (_) {
         if (!arguments.length) return topicNum;
@@ -40,6 +41,12 @@ d3.topicEvolutionDiagram = function() {
         return topicEvolutionDiagram;
     };
 
+    topicEvolutionDiagram.labels = function (_) {
+        if (!arguments.length) return labels;
+        labels = _;
+        return topicEvolutionDiagram;
+    };
+
     topicEvolutionDiagram.size = function (_) {
         if (!arguments.length) return size;
         size = _;
@@ -50,6 +57,7 @@ d3.topicEvolutionDiagram = function() {
         computeNodeLinks();
         computeNodeValues();
         computeNodeBreadths();
+        computeLabelBreadths();
         computeNodeDepths();
         computeLinkDepths();
         return topicEvolutionDiagram;
@@ -143,15 +151,171 @@ d3.topicEvolutionDiagram = function() {
         });
     }
 
+    function computeLabelBreadths() {
+        var x=0;
+
+        labels.forEach(function(node) {
+            node.x = node.seq-1;
+            if(node.seq>x){
+                x=node.seq;
+            }
+        });
+
+        scaleLabelBreadthsAndDepths((0!=(x-1)) ?
+            ((chartWidth - nodeWidth * x - 300) / (x - 1)) :
+            0 );
+    }
+
+    function scaleLabelBreadthsAndDepths(kx) {
+        labels.forEach(function(node) {
+            if(0!=kx){
+                node.x *= kx;
+            }else{
+                node.x = 1;
+            }
+
+            node.y=nodePadding + 5;
+
+        });
+    }
+
+    function hasPostNodes(node){
+        if(null!=node.sourceLinks && node.sourceLinks.length>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    function getPostNodes(node, nextNodes){
+
+        var nArr=[];
+        for(var i=0;i<node.sourceLinks.length;i++){
+            sLink=node.sourceLinks[i];
+            for(var j=0;j<nextNodes.length;j++){
+                nNode=nextNodes[j];
+                if(nNode.topicId == sLink.target){
+                    nArr.push(nNode);
+                }
+            }
+        }
+
+        return nArr;
+    }
+
+
+    function hasPriorNodes(node){
+        if(null!=node.targetLinks && node.targetLinks.length>0){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    /*
+    function getPriorNodes(node, prevNodes){
+        var pArr=[];
+        for(var tLink in  node.targetLinks){
+            for(var pNode in prevNodes){
+                if(pNode.topicId == tLink.source){
+                    pArr.push(pNode);
+                }
+            }
+        }
+        return pArr;
+    }*/
+
+    function keySize(obj) {
+        var size = 0, key;
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) size++;
+        }
+        return size;
+    };
+
+    function resortTopicOrderInEveryGroup(groupByArr){
+
+        var newGroupByArr=new Object();
+        newGroupByArr[1]=groupByArr[1];
+
+        var gbaLength=keySize(groupByArr);
+        for (var i = 2; i <=gbaLength; i++) {
+
+            var newNextTopics=resortNextTopicGroup(
+                                newGroupByArr[i-1],
+                                groupByArr[i]);
+            newGroupByArr[i]=newNextTopics;
+        }
+
+        return newGroupByArr;
+    }
+
+    function resortNextTopicGroup(priorTopicArr, postTopicArr){
+
+        var alreadyResortedNodes=[];
+
+        for(var i=0;i<priorTopicArr.length;i++){
+
+            var tp=priorTopicArr[i];
+            if(hasPostNodes(tp)){
+
+                var postNodes=getPostNodes(tp, postTopicArr);
+
+                for(var j=0;j<postNodes.length;j++){
+                    var pNode = postNodes[j];
+                    if(alreadyResortedNodes.indexOf(pNode)>=0){
+
+                    }else{
+                        var pnIdx=postTopicArr.indexOf(pNode);
+                        var fhnpIdx=searchFirstHasNoPriorBeforeTheIndex(pnIdx,postTopicArr);
+                        if(-1!=fhnpIdx){
+                            swapArrayElements(postTopicArr, pnIdx, fhnpIdx);
+                        }
+                        alreadyResortedNodes.push(pNode);
+                    }
+
+                }
+            }
+        }
+
+        return postTopicArr;
+    }
+
+    function swapArrayElements(arr, indexA, indexB) {
+        var temp = arr[indexA];
+        arr[indexA] = arr[indexB];
+        arr[indexB] = temp;
+    };
+
+    function searchFirstHasNoPriorBeforeTheIndex(bIdx, postTopicArr){
+
+        var idx=-1;
+        for(var i=0;i<bIdx;i++){
+            if(!hasPriorNodes(postTopicArr[i])){
+                idx=i;
+                break;
+            }
+        }
+
+        return idx;
+    }
+
+    function shuffleArray(a) {
+        var j, x, i;
+        for (i = a.length; i; i--) {
+            j = Math.floor(Math.random() * i);
+            x = a[i - 1];
+            a[i - 1] = a[j];
+            a[j] = x;
+        }
+    }
+
     function computeNodeDepths() {
-        // var nodesBySeq = d3.nest()
-        //     .key(function(d) { return d.seq; })
-        //     .sortKeys(d3.ascending)
-        //     .entries(nodes);
-        //     // .map(function(d) { return d.values; });
 
         var nodesBySeq=[];
         var groupByArr = {};
+
+        shuffleArray(nodes);
 
         for (var i = 0; i < nodes.length; ++i) {
             var obj = nodes[i];
@@ -163,9 +327,12 @@ d3.topicEvolutionDiagram = function() {
             }
         }
 
-        for (var gbattr in groupByArr)
+        //Make diagram having less crossing links. Easy to view.
+        var newOrganizedGroupArr=resortTopicOrderInEveryGroup(groupByArr);
+
+        for (var gbattr in newOrganizedGroupArr)
         {
-            nodesBySeq.push(groupByArr[gbattr]);
+            nodesBySeq.push(newOrganizedGroupArr[gbattr]);
         }
 
         initializeNodeDepth();
@@ -177,7 +344,7 @@ d3.topicEvolutionDiagram = function() {
 
             nodesBySeq.forEach(function(tnodes) {
 
-                tnodes.sort(ascendingTopicId);
+                //tnodes.sort(ascendingTopicId);
                 for(var i=0;i<tnodes.length;i++){
 
                     var tNode=tnodes[i];
@@ -195,9 +362,9 @@ d3.topicEvolutionDiagram = function() {
             });
         }
 
-        function ascendingTopicId(a, b) {
-            return a.topidId - b.topidId;
-        }
+        // function ascendingTopicId(a, b) {
+        //     return a.topidId - b.topidId;
+        // }
 
     }
 

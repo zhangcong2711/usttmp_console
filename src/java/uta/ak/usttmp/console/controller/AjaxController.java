@@ -6,7 +6,9 @@
 package uta.ak.usttmp.console.controller;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -57,6 +59,12 @@ public class AjaxController{
     
     @RequestMapping(value = "/getTopicDataByTaskId")
     public ModelAndView getTopicDataByTaskId(String taskId) {
+        
+        String tsql="select * from c_miningtask where mme_eid=?";
+        MiningTask mt=(MiningTask) usttmpJdbcTemlate
+                                    .queryForObject(tsql, 
+                                                    new MiningTaskRowMapper(), 
+                                                    taskId);
  
         String sql="select * from c_topic where miningtask_id=?";
         List<Topic> topicList=usttmpJdbcTemlate.query(sql, new TopicRowMapper(), taskId);
@@ -101,10 +109,39 @@ public class AjaxController{
             }
         }
         
+        int maxSeq=0;
+        for(TopicVo tvo : tpvoList){
+            if(tvo.getSeq()>maxSeq){
+                maxSeq=tvo.getSeq();
+            }
+        }
+        
+        Date startTime=mt.getStartTime();
+        int intervalHours=mt.getMiningInterval();
+        
+        Calendar cal = Calendar.getInstance();
+        
+            
+        List<Map> labeList=new ArrayList<>();
+        for(int i=1;i<=maxSeq;i++){
+            
+            cal.setTime(startTime);
+            cal.add(Calendar.HOUR_OF_DAY,
+                    intervalHours * i);
+            
+            HashMap<String,String> hm=new HashMap<>();
+            
+            hm.put("seq", String.valueOf(i));
+            hm.put("name",cal.getTime().toString());
+            
+            labeList.add(hm);
+        }
+        
         ModelAndView mav=new ModelAndView("/ajax/getTopicDataByTaskId.ajax");
         mav.addObject("topicCount", tpvoList.size());
         mav.addObject("topicList", tpvoList);
         mav.addObject("relaList", relaList);
+        mav.addObject("labelList", labeList);
         return mav;
     }
 

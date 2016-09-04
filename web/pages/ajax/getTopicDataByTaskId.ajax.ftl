@@ -19,4 +19,11 @@
     } <#sep>, </#sep>
     </#list>
 
+],
+"labels":[
+    <#list labelList as label>
+    {"seq":"${label["seq"]}",
+     "name":"${label["name"]}"
+    } <#sep>, </#sep>
+    </#list>
 ]}

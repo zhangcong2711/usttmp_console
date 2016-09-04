@@ -9,6 +9,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
 
     <title>USTTMP -- Universal Platform of Social Text Topic Mining</title>
 
@@ -137,9 +142,12 @@
 
     d3.json("ajax/getTopicDataByTaskId?taskId=${task.id}", function(topicData) {
 
+//        topicData.labels=[];
+
         topicEvolutionDiagram
                 .nodes(topicData.nodes)
                 .links(topicData.links)
+                .labels(topicData.labels)
                 .layout();
 
         var node = svg.append("g").selectAll(".node")
@@ -177,6 +185,22 @@
                 .filter(function(d) { return d.x < chartWidth / 2; })
                 .attr("x", 6 + topicEvolutionDiagram.nodeWidth())
                 .attr("text-anchor", "start");
+
+        var labels = svg.selectAll(".text")
+                .data(topicData.labels)
+                .enter();
+
+        labels.append("text")
+                .attr("x", function(d) { return d.x+1; })
+                .attr("y", function(d) { return d.y; })
+                .attr("dy", ".35em")
+                .attr("text-anchor", "start")
+                .attr("transform", null)
+                .style("font-size", "14px")
+                .style("font-weight", "bold")
+                .text(function(d) {
+                    return d.name;
+                });
 
         var link = svg.append("g").selectAll(".link")
                 .data(topicData.links)
