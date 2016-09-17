@@ -19,6 +19,9 @@
             <list>
               <value>classpath:jdbc.properties</value>
               <value>classpath:server.properties</value>
+              <value>classpath:preprocess.properties</value>
+              <value>classpath:mining.properties</value>
+              <value>classpath:tracking.properties</value>
             </list>
         </property>
         <property name="ignoreUnresolvablePlaceholders" value="true"/>

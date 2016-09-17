@@ -214,7 +214,10 @@
 
         <div id="page-wrapper">
             <div class="row">
-                ${text}. Back to <a herf="${redirectUrl}">${redirectName}</a> in 5 seconds.
+                ${text}. Back to &nbsp;
+                <button type="button" class="btn btn-default" onclick="backToUrl()">${redirectName}</button>
+                <!--<a onclick="backToUrl()">${redirectName}</a>-->
+                &nbsp;in 5 seconds.
             </div>
             <!-- /.row -->
         </div>
@@ -232,13 +235,20 @@
     <!-- Metis Menu Plugin JavaScript -->
     <script src="/${webRootPath}/resources/metisMenu/metisMenu.js"></script>
 
-    <!-- Morris Charts JavaScript -->
+    <!-- Morris Charts JavaScript
     <script src="/${webRootPath}/resources/raphael/raphael.js"></script>
     <script src="/${webRootPath}/resources/morrisjs/morris.js"></script>
-    <script src="/${webRootPath}/resources/js/morris-data.js"></script>
+    <script src="/${webRootPath}/resources/js/morris-data.js"></script>-->
 
     <!-- Custom Theme JavaScript -->
     <script src="/${webRootPath}/resources/sbadmin/js/sb-admin-2.js"></script>
+
+    <script>
+
+        function backToUrl(){
+            window.location = "${redirectUrl}";
+        }
+    </script>
 
 </body>
 

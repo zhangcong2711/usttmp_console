@@ -9,6 +9,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
 
     <title>USTTMP -- Universal Platform of Social Text Topic Mining</title>
 
@@ -29,6 +34,15 @@
 
     <!-- Custom Fonts -->
     <link href="/${webRootPath}/resources/font-awesome/css/font-awesome.css" rel="stylesheet" type="text/css">
+
+    <!-- Datetime Picker -->
+    <link href="/${webRootPath}/resources/bootstrap-datetimepicker/css/bootstrap-datetimepicker.css" rel="stylesheet" media="screen">
+
+    <style>
+        .my-error-class {
+            color:#FF0000;  /* red */
+        }
+    </style>
 
 
 </head>
@@ -137,50 +151,79 @@
             </div>
             <!-- /.row -->
             <div class="row">
-                <form role="form" method="post" action="createNewTask">
+                <form id="newTaskForm" role="form" method="post" action="createNewTask">
 					<div class="form-group">
 						<label>Task name</label>
-						<input class="form-control" name="taskname" value="test01">
+						<input class="form-control" name="taskname" value="" required>
 					</div>
 					<div class="form-group">
 						<label>Start time</label>
-						<input class="form-control" name="starttime" value="2016-07-11 00:00:00">
+						<input class="form-control" id="starttime" name="starttime" value="" required>
 					</div>
 					<div class="form-group">
 						<label>End time</label>
-						<input class="form-control" name="endtime" value="2016-07-14 23:00:00">
+						<input class="form-control" id="endtime" name="endtime" value="" required>
+                        <!--
 						<p class="help-block">The mining task will keep going if without end time. 
 						In addition, system will directly use ready made data to mine if end time has been pasted before now. </p>
+						-->
 					</div>
 					<div class="form-group input-group">
 						<label>Mining interval (hour)</label>
-						<input type="text" class="form-control" name="mininginterval" value="24">
+						<input type="text" class="form-control" name="mininginterval" value="24" required>
 					</div>
 					<div class="form-group">
 						<label>Topic Number</label>
-						<input class="form-control" name="topicnum" value="20">
+						<input class="form-control" name="topicnum" value="20" required>
 						<p class="help-block">Topic number in one-time mining.</p>
 					</div>
 					<div class="form-group">
 						<label>Key Word Number</label>
-						<input class="form-control" name="keywordnum" value="20">
+						<input class="form-control" name="keywordnum" value="20" required>
 						<p class="help-block">Key word number in one topic.</p>
 					</div>
 					<div class="form-group">
 						<label>Alpha</label>
-						<input class="form-control" name="alpha" value="5">
+						<input class="form-control" name="alpha" value="5" required>
 						<p class="help-block">Just leave it as default :)</p>
 					</div>
 					<div class="form-group">
 						<label>Beta</label>
-						<input class="form-control" name="beta" value="0.01">
+						<input class="form-control" name="beta" value="0.01" required>
 						<p class="help-block">Just leave it as default :)</p>
 					</div>
 					<div class="form-group">
-						<label>Tag</label>
-						<input class="form-control" name="tag" value="test01">
-						<p class="help-block">Tag is strongly recommended to use for achieving data specified you want.</p>
+						<label>Data Tag</label>
+						<input class="form-control" name="tag" value="" required>
+						<p class="help-block">Data Tag is necessary to be used for achieving specific data you want.</p>
 					</div>
+                    <div class="form-group">
+                        <label>Preprocess component</label>
+                        <select id="preprocessCp" name="preprocessCp" class="form-control">
+                            <option value='none' selected="selected">NONE</option>
+                            <#list preprocessCp as pp>
+                                <option value='${pp["cpValue"]}'>${pp["cpName"]}</option>
+                            </#list>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mining component</label>
+                        <select id="miningCp" name="miningCp" class="form-control">
+                            <option value='none' selected="selected">NONE</option>
+                            <#list miningCp as pp>
+                                <option value='${pp["cpValue"]}'>${pp["cpName"]}</option>
+                            </#list>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Evolution tracking component</label>
+                        <select id="trackingCp" name="trackingCp" class="form-control">
+                            <option value='none' selected="selected">NONE</option>
+                            <#list trackingCp as pp>
+                                <option value='${pp["cpValue"]}'>${pp["cpName"]}</option>
+                            </#list>
+                        </select>
+                    </div>
 					<button type="submit" class="btn btn-default">Create</button>
 				</form>
             </div>
@@ -200,14 +243,65 @@
     <!-- Metis Menu Plugin JavaScript -->
     <script src="/${webRootPath}/resources/metisMenu/metisMenu.js"></script>
 
-    <!-- Morris Charts JavaScript -->
+    <!-- Morris Charts JavaScript
     <script src="/${webRootPath}/resources/raphael/raphael.js"></script>
     <script src="/${webRootPath}/resources/morrisjs/morris.js"></script>
-    <script src="/${webRootPath}/resources/js/morris-data.js"></script>
+    <script src="/${webRootPath}/resources/js/morris-data.js"></script-->
 
     <!-- Custom Theme JavaScript -->
     <script src="/${webRootPath}/resources/sbadmin/js/sb-admin-2.js"></script>
 
+    <!-- Datetime Picker JavaScript -->
+    <script type="text/javascript" src="/${webRootPath}/resources/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+
+    <!-- Jquery Validation JavaScript -->
+    <script src="/${webRootPath}/resources/jquery-validation/jquery.validate.js"></script>
+
+    <script>
+
+        $('#starttime').datetimepicker({
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            forceParse: 0,
+            showMeridian: 1,
+            format: "yyyy-mm-dd hh:ii:ss"
+        });
+
+        $('#endtime').datetimepicker({
+            weekStart: 1,
+            todayBtn:  1,
+            autoclose: 1,
+            todayHighlight: 1,
+            startView: 2,
+            forceParse: 0,
+            showMeridian: 1,
+            format: "yyyy-mm-dd hh:ii:ss"
+        });
+
+        jQuery.validator.addMethod("validateComponent", function(value, element, param) {
+            return 'none'!=value;
+        }, $.validator.format("Please choose a effective component."));
+
+        $("#newTaskForm").validate({
+            rules: {
+                miningCp: {
+                    required: true,
+                    validateComponent: ""
+                }
+            },
+            messages: {
+                miningCp: {
+                    validateComponent: "Mining process need a effective component."
+                }
+            },
+            errorClass: "my-error-class"
+        });
+
+
+    </script>
 </body>
 
 </html>

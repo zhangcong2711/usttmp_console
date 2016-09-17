@@ -36,6 +36,10 @@
     <!-- DataTables Responsive CSS -->
     <!--link href="/${webRootPath}/resources/datatables-responsive/css/dataTables.responsive.css" rel="stylesheet"-->
 
+    <!-- JQuery confirmation dialog -->
+    <link rel="stylesheet" type="text/css" href="/${webRootPath}/resources/craftpip-jquery-confirm/jquery-confirm.css"/>
+
+
 
 </head>
 
@@ -93,9 +97,9 @@
                         <button type="button"
                                 id="trackingBtn"
                                 class="btn btn-primary btn-lg">Topic Tracking</button>
-                        <button type="button" class="btn btn-warning">Exception Report</button>
-                        <button type="button" class="btn btn-warning">Stop Task</button>
-                        <button type="button" class="btn btn-danger">Delete</button>
+                        <button type="button" id="exceptionRpBtn" class="btn btn-warning">Exception Report</button>
+                        <button type="button" id="stopBtn" class="btn btn-warning">Stop Task</button>
+                        <button type="button" id="delBtn"  class="btn btn-danger">Delete</button>
                     </p>
                     
                     <div class="panel panel-default">
@@ -158,6 +162,9 @@
 
     <!-- Custom Theme JavaScript -->
     <script src="/${webRootPath}/resources/sbadmin/js/sb-admin-2.js"></script>
+
+    <!-- JQuery confirmation dialog -->
+    <script type="text/javascript" src="/${webRootPath}/resources/craftpip-jquery-confirm/jquery-confirm.js"></script>
     
     <script>
 
@@ -173,6 +180,37 @@
             }
         }
 
+
+        function onTaskExceptionClick(){
+            if(selectedTaskRow==null){
+                alert("Please select a mining task.");
+            }else{
+                var taskId=selectedTaskRow["taskId"];
+                window.open("taskException?miningTaskId="+taskId);
+            }
+        }
+
+
+        function onStopTaskClick(){
+
+            if(selectedTaskRow==null){
+                alert("Please select a mining task.");
+            }else{
+                var taskId=selectedTaskRow["taskId"];
+                window.location = "stopTask?miningTaskId="+taskId;
+            }
+        }
+
+        function onDeleteTasklick(){
+
+            if(selectedTaskRow==null){
+                alert("Please select a mining task.");
+            }else{
+                var taskId=selectedTaskRow["taskId"];
+                window.location = "deleteTask?miningTaskId="+taskId;
+            }
+        }
+
     	$(document).ready(function() {
 
 //            var taskRowSelected = [];
@@ -181,6 +219,8 @@
     			"responsive": true,
                 "processing": true,
                 "serverSide": true,
+                "ordering": false,
+                "paging": false,
                 "ajax": "ajax/loadAllTasks",
                 "columns": [
                     { "data": "taskId" },
@@ -226,6 +266,35 @@
             } );
 
             $('#trackingBtn').on( "click", onTopicTrackingClick );
+//            $('#stopBtn').on( "click", onStopTaskClick);
+//            $('#delBtn').on( "click", onDeleteTasklick);
+
+
+            $('#exceptionRpBtn').on( "click", onTaskExceptionClick );
+
+            $('#delBtn').on('click', function () {
+                $.confirm({
+                    title: 'Warning',
+                    content: 'All data (text, topic and evolution relas) related to this task will be purged and NOT restored !',
+                    confirmButton: 'Yes, sure!',
+                    icon: 'fa fa-warning',
+                    confirmButtonClass: 'btn-warning',
+                    animation: 'zoom',
+                    confirm: onDeleteTasklick
+                });
+            });
+
+            $('#stopBtn').on('click', function () {
+                $.confirm({
+                    title: 'Warning',
+                    content: 'The task will be stoped and NOT resumed again (data will be saved).',
+                    confirmButton: 'Yes, sure!',
+                    icon: 'fa fa-warning',
+                    confirmButtonClass: 'btn-warning',
+                    animation: 'zoom',
+                    confirm: onStopTaskClick
+                });
+            });
                 
     	
 //    		t.row.add( [

@@ -61,10 +61,16 @@ public class TopicVo extends Topic {
                             }
                         });
         
-        showName=this.getId() + ": " +
+        if(normalizedWordProbabilityMaps.size()<=2){
+            showName=this.getId() + ": " +
+                 normalizedWordProbabilityMaps.get(0).getWord() + " ...";
+        }else{
+            showName=this.getId() + ": " +
                  normalizedWordProbabilityMaps.get(0).getWord() + ", " +
                  normalizedWordProbabilityMaps.get(1).getWord() + ", " +
                  normalizedWordProbabilityMaps.get(2).getWord() + "...";
+        }
+        
         
         long seed = System.nanoTime();
         Collections.shuffle(normalizedWordProbabilityMaps, new Random(seed));

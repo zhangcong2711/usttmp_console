@@ -210,12 +210,12 @@
                 .style("stroke-width", function(d) { return 8; });
 
         /*
-        var text = svg.selectAll(".linktext")
+        var rankText = svg.selectAll(".linktext")
                                 .data(topicData.links)
                                 .enter()
                                 .append("text");
 
-        var textLabels = text
+        var rankTextLabels = rankText
                          .attr("x", function(d) {
                                 var dsource;
                                 var dtarget;
@@ -248,7 +248,7 @@
                          .attr("font-family", "sans-serif")
                          .attr("font-size", "14px")
                          .attr("fill", "red");
-                         */
+        */
 
         function dragmove(d) {
             d3.select(this).attr("transform", "translate(" + d.x + "," + (d.y = Math.max(0, Math.min(chartHeight, d3.event.y))) + ")");

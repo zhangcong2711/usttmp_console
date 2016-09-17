@@ -24,19 +24,19 @@ public class UserController {
     /**
      * Static list of users to simulate Database
      */
-    private static List<User> userList = new ArrayList<User>();
+//    private static List<User> userList = new ArrayList<User>();
     
     @Autowired
     private DataSource dataSource;
  
     //Initialize the list with some data for index screen
-    static {
-        userList.add(new User("Bill", "Gates"));
-        userList.add(new User("Steve", "Jobs"));
-        userList.add(new User("Larry", "Page"));
-        userList.add(new User("Sergey", "Brin"));
-        userList.add(new User("Larry", "Ellison"));
-    }
+//    static {
+//        userList.add(new User("Bill", "Gates"));
+//        userList.add(new User("Steve", "Jobs"));
+//        userList.add(new User("Larry", "Page"));
+//        userList.add(new User("Sergey", "Brin"));
+//        userList.add(new User("Larry", "Ellison"));
+//    }
  
     /**
      * Saves the static list of users in model and renders it 
@@ -50,7 +50,6 @@ public class UserController {
  
         JdbcTemplate jt=new JdbcTemplate(dataSource);
         
-        model.addAttribute("userList", userList);
  
         return "index";
     }
@@ -61,7 +60,7 @@ public class UserController {
      * 
      * @param user
      * @return Redirect to /index page to display user list
-     */
+     *
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public String add(@ModelAttribute("user") User user) {
  
@@ -76,7 +75,7 @@ public class UserController {
         }
  
         return "redirect:index.html";
-    }
+    }*/
 
     /**
      * @return the dataSource

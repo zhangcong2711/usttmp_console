@@ -6,6 +6,7 @@ d3.topicEvolutionDiagram = function() {
         topicNum = 20,
         nodeWidth = 24,
         nodePadding = 8,
+        nodeSpacing =0,
         size = [1, 1],
         nodes = [],
         links = [];
@@ -141,6 +142,8 @@ d3.topicEvolutionDiagram = function() {
     }
 
     function scaleNodeBreadths(kx) {
+
+        nodeSpacing=kx;
         nodes.forEach(function(node) {
             if(0!=kx){
                 node.x *= kx;
@@ -161,9 +164,7 @@ d3.topicEvolutionDiagram = function() {
             }
         });
 
-        scaleLabelBreadthsAndDepths((0!=(x-1)) ?
-            ((chartWidth - nodeWidth * x - 300) / (x - 1)) :
-            0 );
+        scaleLabelBreadthsAndDepths(nodeSpacing);
     }
 
     function scaleLabelBreadthsAndDepths(kx) {

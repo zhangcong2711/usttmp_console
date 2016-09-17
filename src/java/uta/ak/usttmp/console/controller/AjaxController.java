@@ -29,7 +29,9 @@ import uta.ak.usttmp.common.dao.mapper.MiningTaskRowMapper;
 import uta.ak.usttmp.common.dao.mapper.TopicRowMapper;
 import uta.ak.usttmp.common.model.EvolutionRelationship;
 import uta.ak.usttmp.common.model.MiningTask;
+import uta.ak.usttmp.common.model.MiningTaskLog;
 import uta.ak.usttmp.common.model.Topic;
+import uta.ak.usttmp.common.service.TopicMiningService;
 import uta.ak.usttmp.console.model.vo.TopicVo;
 
 /**
@@ -42,6 +44,9 @@ public class AjaxController{
     
     @Autowired
     private JdbcTemplate usttmpJdbcTemlate;
+    
+    @Autowired
+    private TopicMiningService topicMiningService;
     
     @RequestMapping(value = "/loadAllTasks")
     public ModelAndView loadAllTask() {
@@ -56,6 +61,25 @@ public class AjaxController{
         mav.addObject("mtList", mtList);
         return mav;
     }
+    
+    @RequestMapping(value = "/loadTaskLogs")
+    public ModelAndView loadTaskLogs(String miningTaskId) {
+ 
+        MiningTask mt=topicMiningService
+                            .getMiningTask(Long.parseLong(miningTaskId));
+        List<MiningTaskLog> mtlList=topicMiningService
+                                        .getMiningTaskLogs(Long.parseLong(miningTaskId));
+        
+        
+        int count=(null!=mtlList)?mtlList.size():0;
+        
+        ModelAndView mav=new ModelAndView("/ajax/loadTaskLogs.ajax");
+        mav.addObject("count", count);
+        mav.addObject("miningTask", mt);
+        mav.addObject("mtlList", mtlList);
+        return mav;
+    }
+    
     
     @RequestMapping(value = "/getTopicDataByTaskId")
     public ModelAndView getTopicDataByTaskId(String taskId) {
@@ -157,5 +181,19 @@ public class AjaxController{
      */
     public void setUsttmpJdbcTemlate(JdbcTemplate usttmpJdbcTemlate) {
         this.usttmpJdbcTemlate = usttmpJdbcTemlate;
+    }
+
+    /**
+     * @return the topicMiningService
+     */
+    public TopicMiningService getTopicMiningService() {
+        return topicMiningService;
+    }
+
+    /**
+     * @param topicMiningService the topicMiningService to set
+     */
+    public void setTopicMiningService(TopicMiningService topicMiningService) {
+        this.topicMiningService = topicMiningService;
     }
 }
