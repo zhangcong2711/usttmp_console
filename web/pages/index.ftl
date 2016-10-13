@@ -117,6 +117,7 @@
                                         <tr>
                                             <th>Task ID</th>
                                             <th>Task Name</th>
+                                            <th>Data tag</th>
                                             <th>Start Time</th>
                                             <th>End Time</th>
                                             <th>Time interval (hour)</th>
@@ -221,10 +222,12 @@
                 "serverSide": true,
                 "ordering": false,
                 "paging": false,
+                "searching": false,
                 "ajax": "ajax/loadAllTasks",
                 "columns": [
                     { "data": "taskId" },
                     { "data": "taskName" },
+                    { "data": "tag" },
                     { "data": "startTime" },
                     { "data": "endTime" },
                     { "data": "miningInterval" },

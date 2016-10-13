@@ -139,6 +139,7 @@
             "serverSide": true,
             "ordering": false,
             "paging": false,
+            "searching": false,
             "ajax": "ajax/loadTaskLogs?miningTaskId=${miningTask.id}",
             "columns": [
                 {"data": "occurrenceTime"},

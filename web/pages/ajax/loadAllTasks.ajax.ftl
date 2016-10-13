@@ -8,6 +8,7 @@
         {
             "taskId": "${mt.id}",
             "taskName": "${mt.name}",
+            "tag": "${mt.tag}",
             "startTime": "${mt.startTime ?datetime}",
             "endTime": "${mt.endTime ?datetime}",
             "miningInterval": "${mt.miningInterval}",
